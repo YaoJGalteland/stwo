@@ -485,23 +485,25 @@ mod tests {
 
     #[test_log::test]
     fn test_simd_poseidon_prove() {
+        println!("Number of Rayon threads: {}", rayon::current_num_threads());
+
         // Note: To see time measurement, run test with
         //   RUST_LOG_SPAN_EVENTS=enter,close RUST_LOG=info RUST_BACKTRACE=1 RUSTFLAGS="
         //   -C target-cpu=native -C target-feature=+avx512f -C opt-level=3" cargo test
         //   test_simd_poseidon_prove -- --nocapture
 
         // Get from environment variable:
-        let log_n_instances = env::var("LOG_N_INSTANCES")
+        let _log_n_instances = env::var("LOG_N_INSTANCES")
             .unwrap_or_else(|_| "10".to_string())
             .parse::<u32>()
             .unwrap();
         let config = PcsConfig {
             pow_bits: 10,
-            fri_config: FriConfig::new(5, 1, 64),
+            fri_config: FriConfig::new(0, 1, 256),
         };
 
         // Prove.
-        let (component, proof) = prove_poseidon(log_n_instances, config);
+        let (component, proof) = prove_poseidon(22, config);
 
         // Verify.
         // TODO: Create Air instance independently.
